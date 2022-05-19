@@ -1,8 +1,12 @@
 
-
 import win32api
 import win32con
 import win32gui
+
+from typing import NamedTuple
+
+
+Rect = NamedTuple('Rect', [('left', int), ('top', int), ('right', int), ('bottom', int)])
 
 
 class Window:
@@ -27,7 +31,7 @@ class Window:
                height: int,
                x: int = 0,
                y: int = 0,
-               class_name: int | str = None):
+               class_name: int | str = 32769):
         hwnd = win32gui.CreateWindow(
             class_name, text, win32con.WS_OVERLAPPEDWINDOW,
             x, y, width, height,
@@ -55,6 +59,38 @@ class Window:
     @rect.setter
     def rect(self, rect):
         win32gui.MoveWindow(self.hwnd, rect[0], rect[1], rect[2], rect[3], True)
+
+    @property
+    def width(self):
+        return self.rect[2] - self.rect[0]
+
+    @width.setter
+    def width(self, width):
+        self.rect = (self.rect[0], self.rect[1], self.rect[0] + width, self.rect[3])
+
+    @property
+    def height(self):
+        return self.rect[3] - self.rect[1]
+
+    @height.setter
+    def height(self, height):
+        self.rect = (self.rect[0], self.rect[1], self.rect[2], self.rect[1] + height)
+
+    @property
+    def x(self):
+        return self.rect[0]
+
+    @x.setter
+    def x(self, x):
+        self.rect = (x, self.rect[1], self.width + x, self.rect[3])
+
+    @property
+    def y(self):
+        return self.rect[1]
+
+    @y.setter
+    def y(self, y):
+        self.rect = (self.rect[0], y, self.rect[2], self.height + y)
 
     @property
     def visible(self):
@@ -98,6 +134,8 @@ class Window:
 
     def post_message(self, message, wparam, lparam):
         win32gui.PostMessage(self.hwnd, message, wparam, lparam)
+    
+
 
 
 
