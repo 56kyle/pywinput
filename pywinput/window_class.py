@@ -41,17 +41,6 @@ class WindowClass:
             case _:
                 raise TypeError(f'lpfnWndProc must be a WNDPROC, dict, or None, not {type(lpfnWndProc)}')
 
-        self.wc = win32gui.WNDCLASS()
-        self.wc.style = self.style
-        self.wc.cbWndExtra = self.cbWndExtra
-        self.wc.hInstance = self.hInstance
-        self.wc.hIcon = self.hIcon
-        self.wc.hCursor = self.hCursor
-        self.wc.hbrBackground = self.hbrBackground
-        self.wc.lpszMenuName = self.lpszMenuName
-        self.wc.lpszClassName = self.lpszClassName
-        self.wc.lpfnWndProc = self.lpfnWndProc
-
         self.register()
 
     def __del__(self):
@@ -60,23 +49,50 @@ class WindowClass:
     def __str__(self):
         return self.lpszClassName
 
+    def __repr__(self):
+        return f'<WindowClass(lpszClassName={self.lpszClassName})>'
+
+    def __eq__(self, other):
+        match other:
+            case WindowClass():
+                return self.lpszClassName == other.lpszClassName
+            case str():
+                return self.lpszClassName == other
+            case _:
+                raise TypeError(f'WindowClass.__eq__() can only compare to WindowClass or str, not {type(other)}')
+
+    @logged
     def register(self):
         # Check if the class is already registered
         try:
-            win32gui.RegisterClass(self.wc)
+            wc = win32gui.WNDCLASS()
+            wc.style = self.style
+            wc.cbWndExtra = self.cbWndExtra
+            wc.hInstance = self.hInstance
+            wc.hIcon = self.hIcon
+            wc.hCursor = self.hCursor
+            wc.hbrBackground = self.hbrBackground
+            wc.lpszMenuName = self.lpszMenuName
+            wc.lpszClassName = self.lpszClassName
+            wc.lpfnWndProc = self.lpfnWndProc
+            win32gui.RegisterClass(wc)
         except Exception as e:
             if e.args[0] != 1410:
                 raise e
 
+    @logged
     def unregister(self):
         win32gui.UnregisterClass(self.lpszClassName, self.hInstance)
 
+    @logged
     def on_destroy(self, hwnd: int, message: int, wparam: int, lparam: int):
-        pass
+        win32gui.PostQuitMessage(0)
 
+    @logged
     def on_command(self, hwnd: int, message: int, wparam: int, lparam: int):
         pass
 
+    @logged
     def on_taskbar_notify(self, hwnd: int, message: int, wparam: int, lparam: int):
         pass
 
