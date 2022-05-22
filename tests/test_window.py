@@ -157,30 +157,28 @@ def test_disable(example_window):
     example_window.disable()
     assert not example_window.enabled
 
-def test_focused_getter(example_window):
-    win32gui.SetFocus(win32gui.GetWindow(example_window.hwnd, win32con.GW_HWNDNEXT))
+def test_focused_getter(example_window, other_window):
+    other_window.focus()
     assert not example_window.focused
 
-def test_focus(example_window):
-    win32gui.SetFocus(win32gui.GetWindow(example_window.hwnd, win32con.GW_HWNDNEXT))
+def test_focus(example_window, other_window):
+    other_window.focus()
     assert not example_window.focused
     example_window.focus()
     assert example_window.focused
 
-def test_active_getter(example_window):
-    win32gui.SetActiveWindow(win32gui.GetWindow(example_window.hwnd, win32con.GW_HWNDNEXT))
+def test_active_getter(example_window, other_window):
+    other_window.activate()
     assert not example_window.active
 
-def test_activate(example_window):
-    win32gui.SetActiveWindow(win32gui.GetWindow(example_window.hwnd, win32con.GW_HWNDNEXT))
+def test_activate(example_window, other_window):
+    other_window.activate()
     assert not example_window.active
     example_window.activate()
     assert example_window.active
 
 def test_close(example_window):
     example_window.close()
-    with pytest.raises(WindowsError):
-        example_window.show()
 
 def test_update(example_window):
     example_window.update()

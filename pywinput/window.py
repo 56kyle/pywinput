@@ -178,6 +178,6 @@ class Window:
         win32gui.PostMessage(self.hwnd, message, wparam, lparam)
 
     @logged
-    def flash(self, bInvert: int):
+    def flash(self, bInvert: SupportsInt = 0):
         win32gui.FlashWindow(self.hwnd, 1 if bInvert else 0)
 
