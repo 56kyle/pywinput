@@ -2,9 +2,8 @@
 import win32api
 import win32con
 import win32gui
-import win32ui
 
-from typing import NamedTuple
+from typing import SupportsInt
 
 from pywinput.logger import log, logged
 from pywinput.structures import *
@@ -22,9 +21,13 @@ class Window:
         return f'<Window(hwnd={self.hwnd})>'
 
     def __eq__(self, other):
-        if isinstance(other, Window):
-            return self.hwnd == other.hwnd
-        return False
+        match other:
+            case Window():
+                return self.hwnd == other.hwnd
+            case SupportsInt() | HWND():
+                return self.hwnd == other
+            case _:
+                raise TypeError(f'Cannot compare {type(self)} to {type(other)}')
 
     @classmethod
     @logged
@@ -48,20 +51,9 @@ class Window:
                 lpszClassName='MyWndClass',
                 hInstance=hInstance,
             )
-
-        lpszClassName = windowClass.lpszClassName if isinstance(windowClass, WindowClass) else windowClass
+        className = windowClass.lpszClassName if isinstance(windowClass, WindowClass) else windowClass
         hwnd = win32gui.CreateWindow(
-            lpszClassName,
-            windowTitle,
-            style,
-            x,
-            y,
-            width,
-            height,
-            parent,
-            menu,
-            hInstance,
-            reserved
+            className, windowTitle, style, x, y, width, height, parent, menu, hInstance, reserved
         )
         win32gui.UpdateWindow(hwnd)
         return cls(hwnd)
@@ -73,10 +65,6 @@ class Window:
         if hwnd:
             return cls(hwnd)
         return None
-
-    @logged
-    def close(self):
-        win32gui.PostMessage(self.hwnd, win32con.WM_CLOSE, 0, 0)
 
     @property
     def text(self):
@@ -130,6 +118,10 @@ class Window:
     def visible(self):
         return win32gui.IsWindowVisible(self.hwnd)
 
+    @visible.setter
+    def visible(self, visible):
+        self.show() if visible else self.hide()
+
     @logged
     def show(self):
         win32gui.ShowWindow(self.hwnd, win32con.SW_SHOW)
@@ -142,13 +134,17 @@ class Window:
     def enabled(self):
         return win32gui.IsWindowEnabled(self.hwnd)
 
-    @logged
-    def enable(self):
-        win32gui.EnableWindow(self.hwnd)
+    @enabled.setter
+    def enabled(self, enabled):
+        self.enable() if enabled else self.disable()
 
     @logged
-    def disable(self):
-        win32gui.EnableWindow(self.hwnd, False)
+    def enable(self) -> bool:
+        return win32gui.EnableWindow(self.hwnd, True)
+
+    @logged
+    def disable(self) -> bool:
+        return win32gui.EnableWindow(self.hwnd, False)
 
     @property
     def focused(self):
@@ -161,6 +157,7 @@ class Window:
     def active(self):
         return win32gui.GetActiveWindow() == self.hwnd
 
+    @logged
     def activate(self):
         win32gui.SetActiveWindow(self.hwnd)
 
@@ -174,17 +171,13 @@ class Window:
 
     @logged
     def send_message(self, message, wparam, lparam):
-        win32gui.SendMessage(self.hwnd, message, wparam, lparam)
+        return win32gui.SendMessage(self.hwnd, message, wparam, lparam)
 
     @logged
     def post_message(self, message, wparam, lparam):
         win32gui.PostMessage(self.hwnd, message, wparam, lparam)
 
-
-if __name__ == '__main__':
-    print(win32gui.WNDCLASS().hIcon)
-
-
-
-
+    @logged
+    def flash(self, bInvert: int):
+        win32gui.FlashWindow(self.hwnd, bInvert)
 
