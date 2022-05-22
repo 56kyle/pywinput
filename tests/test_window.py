@@ -16,16 +16,19 @@ def test_window_init(example_window):
 def test_window_create(example_window_class):
     """Tests the 'Window.get_title' method."""
     win = Window.create(
-        x=10,
-        y=20,
-        width=30,
-        height=40,
+        windowClass=None,
+        windowTitle='foo',
+        style=win32con.WS_OVERLAPPEDWINDOW,
+        x=100,
+        y=200,
+        width=400,
+        height=400,
     )
-    assert win.text == ''
-    assert win.x == 10
-    assert win.y == 20
-    assert win.width == 30
-    assert win.height == 40
+    assert win.text == 'foo'
+    assert win.x == 100
+    assert win.y == 200
+    assert win.width == 400
+    assert win.height == 400
 
 def test_window_find(example_window):
     """Tests the 'Window.find' method."""
@@ -42,7 +45,7 @@ def test_window_repr(example_window):
 
 def test_window_text_getter(example_window):
     """Tests the 'Window.text' property."""
-    assert example_window.text == 'My win32api app'
+    assert example_window.text == 'Example Window'
 
 def test_window_text_setter(example_window):
     """Tests the 'Window.text' property."""

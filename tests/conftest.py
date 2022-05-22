@@ -13,7 +13,7 @@ def example_window_class():
     return WindowClass(
         style=win32con.CS_HREDRAW | win32con.CS_VREDRAW,
         cbWndExtra=win32con.DLGWINDOWEXTRA,
-        lpszClassName='MyWndClass',
+        lpszClassName='Example Window Class',
     )
 
 
@@ -21,7 +21,7 @@ def example_window_class():
 def example_window(example_window_class):
     return Window.create(
         windowClass=example_window_class,
-        windowTitle='My win32api app',
+        windowTitle='Example Window',
     )
 
 
