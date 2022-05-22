@@ -1,5 +1,9 @@
 
 
+import win32api
+import win32con
+import win32gui
+
 import pytest
 
 from pywinput.window import Window
@@ -9,14 +13,19 @@ def test_window_init(example_window):
     """Tests the 'Window.__init__' method."""
     assert Window(example_window.hwnd) == example_window
 
-def test_window_create(example_window):
+def test_window_create(example_window_class):
     """Tests the 'Window.get_title' method."""
-    win = Window.create('Example', 10, 20, 30, 40)
-    assert win.text == 'Example'
-    assert win.width == 10
-    assert win.height == 20
-    assert win.x == 30
-    assert win.y == 40
+    win = Window.create(
+        x=10,
+        y=20,
+        width=30,
+        height=40,
+    )
+    assert win.text == ''
+    assert win.x == 10
+    assert win.y == 20
+    assert win.width == 30
+    assert win.height == 40
 
 def test_window_find(example_window):
     """Tests the 'Window.find' method."""
@@ -33,7 +42,7 @@ def test_window_repr(example_window):
 
 def test_window_text_getter(example_window):
     """Tests the 'Window.text' property."""
-    assert example_window.text == 'Example Window'
+    assert example_window.text == 'My win32api app'
 
 def test_window_text_setter(example_window):
     """Tests the 'Window.text' property."""

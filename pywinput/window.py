@@ -2,11 +2,12 @@
 import win32api
 import win32con
 import win32gui
+import win32ui
 
 from typing import NamedTuple
 
-
-Rect = NamedTuple('Rect', [('left', int), ('top', int), ('right', int), ('bottom', int)])
+from pywinput.structures import *
+from pywinput.window_class import WindowClass
 
 
 class Window:
@@ -26,23 +27,49 @@ class Window:
 
     @classmethod
     def create(cls,
-               text: str,
-               width: int,
-               height: int,
-               x: int = 0,
-               y: int = 0,
-               class_name: int | str = 32769):
+               windowClass: int | str | WindowClass = None,
+               windowTitle: str = '',
+               style: int = win32con.WS_OVERLAPPEDWINDOW,
+               x: int = win32con.CW_USEDEFAULT,
+               y: int = win32con.CW_USEDEFAULT,
+               width: int = win32con.CW_USEDEFAULT,
+               height: int = win32con.CW_USEDEFAULT,
+               parent: int = None,
+               menu: int = None,
+               hinstance: int = win32api.GetModuleHandle(None),
+               reserved: None = None,
+               ):
+        if windowClass is None:
+            windowClass = WindowClass(
+                style=win32con.CS_HREDRAW | win32con.CS_VREDRAW,
+                cbWndExtra=win32con.DLGWINDOWEXTRA,
+                lpszClassName='MyWndClass'
+            )
         hwnd = win32gui.CreateWindow(
-            class_name, text, win32con.WS_OVERLAPPEDWINDOW,
-            x, y, width, height,
-            0, 0, win32api.GetModuleHandle(None), None
+            windowClass.lpszClassName if isinstance(windowClass, WindowClass) else windowClass,
+            windowTitle,
+            style,
+            x,
+            y,
+            width,
+            height,
+            parent,
+            menu,
+            hinstance,
+            reserved
         )
         win32gui.UpdateWindow(hwnd)
         return cls(hwnd)
 
     @classmethod
     def find(cls, title):
-        return cls(win32gui.FindWindow(None, title))
+        hwnd: HWND | None = win32gui.FindWindow(None, title)
+        if hwnd:
+            return cls(hwnd)
+        return None
+
+    def close(self):
+        win32gui.PostMessage(self.hwnd, win32con.WM_CLOSE, 0, 0)
 
     @property
     def text(self):
@@ -134,10 +161,10 @@ class Window:
 
     def post_message(self, message, wparam, lparam):
         win32gui.PostMessage(self.hwnd, message, wparam, lparam)
-    
 
 
-
+if __name__ == '__main__':
+    print(win32gui.WNDCLASS().hIcon)
 
 
 
