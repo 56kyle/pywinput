@@ -75,51 +75,51 @@ class Window:
         win32gui.SetWindowText(self.hwnd, text)
 
     @property
-    def rect(self):
+    def rect(self) -> RECT:
         return win32gui.GetWindowRect(self.hwnd)
 
     @rect.setter
-    def rect(self, rect):
-        win32gui.MoveWindow(self.hwnd, rect[0], rect[1], rect[2], rect[3], True)
+    def rect(self, rect: RECT):
+        win32gui.MoveWindow(self.hwnd, rect[0], rect[1], rect[2] - rect[0], rect[3] - rect[1], True)
 
     @property
-    def width(self):
+    def width(self) -> int:
         return self.rect[2] - self.rect[0]
 
     @width.setter
-    def width(self, width):
+    def width(self, width: SupportsInt):
         self.rect = (self.rect[0], self.rect[1], self.rect[0] + width, self.rect[3])
 
     @property
-    def height(self):
+    def height(self) -> int:
         return self.rect[3] - self.rect[1]
 
     @height.setter
-    def height(self, height):
+    def height(self, height: SupportsInt):
         self.rect = (self.rect[0], self.rect[1], self.rect[2], self.rect[1] + height)
 
     @property
-    def x(self):
+    def x(self) -> int:
         return self.rect[0]
 
     @x.setter
-    def x(self, x):
+    def x(self, x: SupportsInt):
         self.rect = (x, self.rect[1], self.width + x, self.rect[3])
 
     @property
-    def y(self):
+    def y(self) -> int:
         return self.rect[1]
 
     @y.setter
-    def y(self, y):
+    def y(self, y: SupportsInt):
         self.rect = (self.rect[0], y, self.rect[2], self.height + y)
 
     @property
-    def visible(self):
+    def visible(self) -> bool:
         return win32gui.IsWindowVisible(self.hwnd)
 
     @visible.setter
-    def visible(self, visible):
+    def visible(self, visible: bool):
         self.show() if visible else self.hide()
 
     @logged
@@ -131,11 +131,11 @@ class Window:
         win32gui.ShowWindow(self.hwnd, win32con.SW_HIDE)
 
     @property
-    def enabled(self):
+    def enabled(self) -> bool:
         return win32gui.IsWindowEnabled(self.hwnd)
 
     @enabled.setter
-    def enabled(self, enabled):
+    def enabled(self, enabled: bool):
         self.enable() if enabled else self.disable()
 
     @logged
@@ -147,14 +147,14 @@ class Window:
         return win32gui.EnableWindow(self.hwnd, False)
 
     @property
-    def focused(self):
+    def focused(self) -> bool:
         return win32gui.GetForegroundWindow() == self.hwnd
 
     def focus(self):
         win32gui.SetForegroundWindow(self.hwnd)
 
     @property
-    def active(self):
+    def active(self) -> bool:
         return win32gui.GetActiveWindow() == self.hwnd
 
     @logged
@@ -170,14 +170,14 @@ class Window:
         win32gui.UpdateWindow(self.hwnd)
 
     @logged
-    def send_message(self, message, wparam, lparam):
+    def send_message(self, message: SupportsInt, wparam: int | str = None, lparam: int | str = None) -> LRESULT:
         return win32gui.SendMessage(self.hwnd, message, wparam, lparam)
 
     @logged
-    def post_message(self, message, wparam, lparam):
+    def post_message(self, message: SupportsInt, wparam: int = 0, lparam: int = 0):
         win32gui.PostMessage(self.hwnd, message, wparam, lparam)
 
     @logged
     def flash(self, bInvert: int):
-        win32gui.FlashWindow(self.hwnd, bInvert)
+        win32gui.FlashWindow(self.hwnd, 1 if bInvert else 0)
 

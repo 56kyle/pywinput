@@ -60,6 +60,7 @@ def test_window_text_setter(example_window):
     assert example_window.text == original_text
 
 def test_rect_getter(example_window):
+    example_window.rect = (100, 200, 500, 600)
     assert example_window.rect == (100, 200, 500, 600)
 
 def test_rect_setter(example_window):
@@ -157,23 +158,18 @@ def test_disable(example_window):
     assert not example_window.enabled
 
 def test_focused_getter(example_window):
-    example_window.focused = False
+    win32gui.SetFocus(win32gui.GetWindow(example_window.hwnd, win32con.GW_HWNDNEXT))
     assert not example_window.focused
 
 def test_focus(example_window):
     win32gui.SetFocus(win32gui.GetWindow(example_window.hwnd, win32con.GW_HWNDNEXT))
     assert not example_window.focused
     example_window.focus()
+    assert example_window.focused
 
 def test_active_getter(example_window):
     win32gui.SetActiveWindow(win32gui.GetWindow(example_window.hwnd, win32con.GW_HWNDNEXT))
     assert not example_window.active
-
-def test_active_setter(example_window):
-    win32gui.SetActiveWindow(win32gui.GetWindow(example_window.hwnd, win32con.GW_HWNDNEXT))
-    assert not example_window.active
-    example_window.active = True
-    assert example_window.active
 
 def test_activate(example_window):
     win32gui.SetActiveWindow(win32gui.GetWindow(example_window.hwnd, win32con.GW_HWNDNEXT))
