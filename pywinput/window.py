@@ -5,11 +5,12 @@ import win32gui
 
 from typing import SupportsInt
 
-from pywinput.logger import log, logged
+from pywinput.logger import log
 from pywinput.structures import *
 from pywinput.window_class import WindowClass
 
 
+# noinspection PyArgumentList
 class Window:
     def __init__(self, hwnd):
         self.hwnd = hwnd
@@ -30,7 +31,6 @@ class Window:
                 raise TypeError(f'Cannot compare {type(self)} to {type(other)}')
 
     @classmethod
-    @logged
     def create(cls,
                windowClass: int | str | WindowClass = None,
                windowTitle: str = '',
@@ -59,7 +59,6 @@ class Window:
         return cls(hwnd)
 
     @classmethod
-    @logged
     def find(cls, title):
         hwnd: HWND | None = win32gui.FindWindow(None, title)
         if hwnd:
@@ -122,11 +121,9 @@ class Window:
     def visible(self, visible: bool):
         self.show() if visible else self.hide()
 
-    @logged
     def show(self):
         win32gui.ShowWindow(self.hwnd, win32con.SW_SHOW)
 
-    @logged
     def hide(self):
         win32gui.ShowWindow(self.hwnd, win32con.SW_HIDE)
 
@@ -138,11 +135,9 @@ class Window:
     def enabled(self, enabled: bool):
         self.enable() if enabled else self.disable()
 
-    @logged
     def enable(self) -> bool:
         return win32gui.EnableWindow(self.hwnd, True)
 
-    @logged
     def disable(self) -> bool:
         return win32gui.EnableWindow(self.hwnd, False)
 
@@ -157,27 +152,21 @@ class Window:
     def active(self) -> bool:
         return win32gui.GetActiveWindow() == self.hwnd
 
-    @logged
     def activate(self):
         win32gui.SetActiveWindow(self.hwnd)
 
-    @logged
     def close(self):
         win32gui.PostMessage(self.hwnd, win32con.WM_CLOSE, 0, 0)
 
-    @logged
     def update(self):
         win32gui.UpdateWindow(self.hwnd)
 
-    @logged
     def send_message(self, message: SupportsInt, wparam: int | str = None, lparam: int | str = None) -> LRESULT:
         return win32gui.SendMessage(self.hwnd, message, wparam, lparam)
 
-    @logged
     def post_message(self, message: SupportsInt, wparam: int = 0, lparam: int = 0):
         win32gui.PostMessage(self.hwnd, message, wparam, lparam)
 
-    @logged
     def flash(self, bInvert: SupportsInt = 0):
         win32gui.FlashWindow(self.hwnd, 1 if bInvert else 0)
 

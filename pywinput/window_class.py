@@ -3,7 +3,7 @@ import win32api
 import win32con
 import win32gui
 
-from pywinput.logger import log, logged
+from pywinput.logger import log
 from pywinput.structures import *
 
 
@@ -26,7 +26,7 @@ class WindowClass:
         self.hCursor = hCursor if hCursor is not None else 0
         self.hbrBackground = hbrBackground if hbrBackground is not None else 0
         self.lpszMenuName = lpszMenuName if lpszMenuName is not None else ''
-        self.lpszClassName = lpszClassName if lpszClassName is not None else ''
+        self.lpszClassName = lpszClassName if lpszClassName is not None else 'WindowClass'
         match lpfnWndProc:
             case WNDPROC():
                 self.lpfnWndProc = lpfnWndProc
@@ -61,7 +61,6 @@ class WindowClass:
             case _:
                 raise TypeError(f'WindowClass.__eq__() can only compare to WindowClass or str, not {type(other)}')
 
-    @logged
     def register(self):
         # Check if the class is already registered
         try:
@@ -80,19 +79,15 @@ class WindowClass:
             if e.args[0] != 1410:
                 raise e
 
-    @logged
     def unregister(self):
         win32gui.UnregisterClass(self.lpszClassName, self.hInstance)
 
-    @logged
     def on_destroy(self, hwnd: int, message: int, wparam: int, lparam: int):
         win32gui.PostQuitMessage(0)
 
-    @logged
     def on_command(self, hwnd: int, message: int, wparam: int, lparam: int):
         pass
 
-    @logged
     def on_taskbar_notify(self, hwnd: int, message: int, wparam: int, lparam: int):
         pass
 
