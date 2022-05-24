@@ -48,6 +48,14 @@ python-versions = "*"
 pyobjc = {version = "*", markers = "sys_platform == \"darwin\""}
 
 [[package]]
+name = "mouse"
+version = "0.7.1"
+description = "Hook and simulate mouse events on Windows and Linux"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "packaging"
 version = "21.3"
 description = "Core utilities for Python packages"
@@ -1993,7 +2001,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "e6349b39c2c4e5a2b264f2edbd8e02c442b0e6d91402231a0f63044649de8ffd"
+content-hash = "1fb2930648b8f93adda89787b9b171ac10667eeea2149d65cefceed6de4662a8"
 
 [metadata.files]
 atomicwrites = [
@@ -2015,6 +2023,9 @@ iniconfig = [
 keyboard = [
     {file = "keyboard-0.13.5-py3-none-any.whl", hash = "sha256:8e9c2422f1217e0bd84489b9ecd361027cc78415828f4fe4f88dd4acd587947b"},
     {file = "keyboard-0.13.5.zip", hash = "sha256:63ed83305955939ca5c9a73755e5cc43e8242263f5ad5fd3bb7e0b032f3d308b"},
+]
+mouse = [
+    {file = "mouse-0.7.1-py2.py3-none-any.whl", hash = "sha256:d34bb9548890089fcb11988400e26f55c624e6c7b741fff75fedfdfbd37c0016"},
 ]
 packaging = [
     {file = "packaging-21.3-py3-none-any.whl", hash = "sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522"},

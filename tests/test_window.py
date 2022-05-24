@@ -6,7 +6,7 @@ import win32gui
 
 import pytest
 
-from pywinput.window import Window, create, find
+from pywinput.window import Window
 
 
 def test_window_init(example_window):
@@ -27,7 +27,7 @@ def test_window_eq(example_window):
 
 def test_window_create(example_window_class):
     """Tests the 'Window.get_title' method."""
-    win = create(
+    win = Window.create(
         windowClass=None,
         windowTitle='foo',
         style=win32con.WS_OVERLAPPEDWINDOW,
@@ -44,7 +44,7 @@ def test_window_create(example_window_class):
 
 def test_window_find(example_window):
     """Tests the 'Window.find' method."""
-    win = find('Example Window')
+    win = Window.find('Example Window')
     assert win == example_window
 
 def test_window_text_getter(example_window):

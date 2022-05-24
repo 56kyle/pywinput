@@ -6,7 +6,9 @@ import win32gui
 
 from typing import SupportsInt
 
+from pywinput.keyboard import Keyboard
 from pywinput.logger import log
+from pywinput.mouse import Mouse
 from pywinput.structures import *
 from pywinput.window_class import WindowClass
 
@@ -14,6 +16,8 @@ from pywinput.window_class import WindowClass
 class Window:
     def __init__(self, hwnd):
         self.hwnd = hwnd
+        self.keyboard = Keyboard(self)
+        self.mouse = Mouse(self)
 
     def __str__(self):
         return self.text
@@ -29,6 +33,41 @@ class Window:
                 return self.hwnd == other
             case _:
                 raise TypeError(f'Cannot compare {type(self)} to {type(other)}')
+
+    @classmethod
+    def create(cls,
+               windowClass: int | str | WindowClass = None,
+               windowTitle: str = '',
+               style: int = win32con.WS_CAPTION | win32con.WS_SYSMENU | win32con.WS_THICKFRAME | win32con.WS_MINIMIZEBOX | win32con.WS_MAXIMIZEBOX,
+               x: int = win32con.CW_USEDEFAULT,
+               y: int = win32con.CW_USEDEFAULT,
+               width: int = win32con.CW_USEDEFAULT,
+               height: int = win32con.CW_USEDEFAULT,
+               parent: int = None,
+               menu: int = None,
+               hInstance: int = win32api.GetModuleHandle(None),
+               reserved: None = None,
+               ):
+        if windowClass is None:
+            windowClass = WindowClass(
+                style=win32con.CS_HREDRAW | win32con.CS_VREDRAW,
+                cbWndExtra=win32con.DLGWINDOWEXTRA,
+                lpszClassName='MyWndClass',
+                hInstance=hInstance,
+            )
+        className = windowClass.lpszClassName if isinstance(windowClass, WindowClass) else windowClass
+        hwnd = win32gui.CreateWindow(
+            className, windowTitle, style, x, y, width, height, parent, menu, hInstance, reserved
+        )
+        win32gui.UpdateWindow(hwnd)
+        return cls(hwnd)
+
+    @classmethod
+    def find(cls, title: str):
+        hwnd: HWND | None = win32gui.FindWindow(None, title)
+        if hwnd:
+            return cls(hwnd)
+        return None
 
     @property
     def text(self):
@@ -143,36 +182,4 @@ class Window:
         win32gui.FlashWindow(self.hwnd, 1 if bInvert else 0)
 
 
-def create(windowClass: int | str | WindowClass = None,
-           windowTitle: str = '',
-           style: int = win32con.WS_CAPTION | win32con.WS_SYSMENU | win32con.WS_THICKFRAME | win32con.WS_MINIMIZEBOX | win32con.WS_MAXIMIZEBOX,
-           x: int = win32con.CW_USEDEFAULT,
-           y: int = win32con.CW_USEDEFAULT,
-           width: int = win32con.CW_USEDEFAULT,
-           height: int = win32con.CW_USEDEFAULT,
-           parent: int = None,
-           menu: int = None,
-           hInstance: int = win32api.GetModuleHandle(None),
-           reserved: None = None,
-           ):
-    if windowClass is None:
-        windowClass = WindowClass(
-            style=win32con.CS_HREDRAW | win32con.CS_VREDRAW,
-            cbWndExtra=win32con.DLGWINDOWEXTRA,
-            lpszClassName='MyWndClass',
-            hInstance=hInstance,
-        )
-    className = windowClass.lpszClassName if isinstance(windowClass, WindowClass) else windowClass
-    hwnd = win32gui.CreateWindow(
-        className, windowTitle, style, x, y, width, height, parent, menu, hInstance, reserved
-    )
-    win32gui.UpdateWindow(hwnd)
-    return Window(hwnd)
-
-
-def find(title: str) -> Window | None:
-    hwnd: HWND | None = win32gui.FindWindow(None, title)
-    if hwnd:
-        return Window(hwnd)
-    return None
 
