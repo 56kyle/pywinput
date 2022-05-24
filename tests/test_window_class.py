@@ -5,7 +5,7 @@ import win32api
 import win32con
 import win32gui
 
-from pywinput.window import Window
+from pywinput.window import Window, create, find
 from pywinput.window_class import WindowClass
 
 
@@ -39,7 +39,7 @@ def test_window_class_register(example_window):
     assert win32gui.GetClassName(example_window.hwnd)
 
 def test_window_class_unregister(example_window_class):
-    temp_window = Window.create(
+    temp_window = create(
         windowClass=example_window_class,
         windowTitle='Temp Window',
     )

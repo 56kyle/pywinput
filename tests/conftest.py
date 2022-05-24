@@ -4,7 +4,7 @@ import pytest
 import win32gui
 
 from pywinput.structures import *
-from pywinput.window import Window
+from pywinput.window import Window, create, find
 from pywinput.window_class import WindowClass
 
 
@@ -19,7 +19,7 @@ def example_window_class() -> WindowClass:
 
 @pytest.fixture(scope="session")
 def example_window(example_window_class) -> Window:
-    return Window.create(
+    return create(
         windowClass=example_window_class,
         windowTitle='Example Window',
     )
@@ -27,7 +27,7 @@ def example_window(example_window_class) -> Window:
 
 @pytest.fixture(scope="session")
 def other_window(example_window_class) -> Window:
-    return Window.create(
+    return create(
         windowClass=example_window_class,
         windowTitle='Other Window',
     )

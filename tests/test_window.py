@@ -6,7 +6,7 @@ import win32gui
 
 import pytest
 
-from pywinput.window import Window
+from pywinput.window import Window, create, find
 
 
 def test_window_init(example_window):
@@ -27,7 +27,7 @@ def test_window_eq(example_window):
 
 def test_window_create(example_window_class):
     """Tests the 'Window.get_title' method."""
-    win = Window.create(
+    win = create(
         windowClass=None,
         windowTitle='foo',
         style=win32con.WS_OVERLAPPEDWINDOW,
@@ -44,7 +44,7 @@ def test_window_create(example_window_class):
 
 def test_window_find(example_window):
     """Tests the 'Window.find' method."""
-    win = Window.find('Example Window')
+    win = find('Example Window')
     assert win == example_window
 
 def test_window_text_getter(example_window):
@@ -166,6 +166,16 @@ def test_focus(example_window, other_window):
     assert not example_window.focused
     example_window.focus()
     assert example_window.focused
+
+def test_captured_getter(example_window, other_window):
+    other_window.capture()
+    assert not example_window.captured
+
+def test_capture(example_window, other_window):
+    other_window.capture()
+    assert not example_window.captured
+    example_window.capture()
+    assert example_window.captured
 
 def test_active_getter(example_window, other_window):
     other_window.activate()
