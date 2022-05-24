@@ -118,6 +118,46 @@ class Window:
         self.rect = (self.rect[0], y, self.rect[2], self.height + y)
 
     @property
+    def client_rect(self) -> RECT:
+        return win32gui.GetWindowRect(self.hwnd)
+
+    @client_rect.setter
+    def client_rect(self, rect: RECT):
+        win32gui.MoveWindow(self.hwnd, rect[0], rect[1], rect[2] - rect[0], rect[3] - rect[1], True)
+
+    @property
+    def client_width(self) -> int:
+        return self.client_rect[2] - self.client_rect[0]
+
+    @client_width.setter
+    def client_width(self, width: SupportsInt):
+        self.client_rect = (self.client_rect[0], self.client_rect[1], self.client_rect[0] + width, self.client_rect[3])
+
+    @property
+    def client_height(self) -> int:
+        return self.client_rect[3] - self.client_rect[1]
+
+    @client_height.setter
+    def client_height(self, height: SupportsInt):
+        self.client_rect = (self.client_rect[0], self.client_rect[1], self.client_rect[2], self.client_rect[1] + height)
+
+    @property
+    def client_x(self) -> int:
+        return self.client_rect[0]
+
+    @client_x.setter
+    def client_x(self, x: int):
+        self.client_rect = (x, self.client_rect[1], self.client_width + x, self.client_rect[3])
+
+    @property
+    def client_y(self) -> int:
+        return self.client_rect[1]
+
+    @client_y.setter
+    def client_y(self, y: int):
+        self.client_rect = (self.client_rect[0], y, self.client_rect[2], self.client_height + y)
+
+    @property
     def visible(self) -> bool:
         return win32gui.IsWindowVisible(self.hwnd)
 

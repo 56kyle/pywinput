@@ -1,8 +1,23 @@
 [tool.poetry]
 name = "pywinput"
 version = "0.1.0"
-description = ""
-authors = ["Kyle Oliver <oliverke@mail.uc.edu>"]
+description = "A wrapper for pywin32 that adds some extra functionality and solves common issues."
+authors = ["Kyle Oliver <56kyleoliver@gmail.com>"]
+maintainers = []
+license = "GPL-3.0-or-later"
+readme = "README.md"
+homepage = "https://github.com/56kyle/pywinput"
+repository = "https://github.com/56kyle/pywinput"
+keywords = ["python", "pywin32", "keyboard", "mouse", "windows"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Hardware :: Hardware Drivers",
+    "Topic :: System :: Operating System Kernels :: Microsoft :: Windows",
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"

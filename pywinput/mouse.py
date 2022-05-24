@@ -6,6 +6,8 @@ import time
 
 from typing import Tuple
 
+from .constants import *
+
 
 class Mouse:
     def __init__(self, window):
@@ -15,10 +17,14 @@ class Mouse:
     def position(self) -> Tuple[int, int]:
         return win32gui.GetCursorPos()
 
-    def pressed(self, key=win32con.VK_LBUTTON) -> bool:
+    @property
+    def position_long(self):
+        return win32api.MAKELONG(*self.position)
+
+    def pressed(self, key=buttons.LEFT) -> bool:
         return win32api.GetKeyState(key) & 0x8000
 
-    def click(self, button=win32con.VK_LBUTTON):
+    def click(self, button=buttons.LEFT):
         self.press(button)
         self.release(button)
 
@@ -53,32 +59,45 @@ class Mouse:
                     self.move(start_x + dx * i / steps, start_y + dy * i / steps)
                     time.sleep(duration / steps)
         else:
+            adjusted_x = x - win32gui.GetClientRect(self.window.hwnd)[0]
             self.window.post_message(win32con.WM_MOUSEMOVE, 0, win32api.MAKELONG(x, y))
 
     def scroll(self, delta=1):
         self.window.post_message(win32con.WM_MOUSEWHEEL, delta, 0)
 
-    def press(self, button=win32con.VK_LBUTTON):
+    def press(self, button=buttons.LEFT, modifiers=0x0000):
         match button:
-            case win32con.VK_LBUTTON:
-                self.window.post_message(win32con.WM_LBUTTONDOWN, 0, win32api.MAKELONG(*self.position))
-            case win32con.VK_RBUTTON:
-                self.window.post_message(win32con.WM_RBUTTONDOWN, 0, win32api.MAKELONG(*self.position))
-            case win32con.VK_MBUTTON:
-                self.window.post_message(win32con.WM_MBUTTONDOWN, 0, win32api.MAKELONG(*self.position))
+            case buttons.LEFT:
+                self.window.post_message(WM_LBUTTONDOWN, modifiers, self.position_long)
+            case buttons.RIGHT:
+                self.window.post_message(WM_RBUTTONDOWN, modifiers, self.position_long)
+            case buttons.MIDDLE:
+                self.window.post_message(WM_MBUTTONDOWN, modifiers, self.position_long)
+            case buttons.X1:
+                # 0x0001 means the first X button
+                self.window.post_message(WM_XBUTTONDOWN, modifiers | 0x0001, self.position_long)
+            case buttons.X2:
+                # 0x0002 means the second X button
+                self.window.post_message(WM_XBUTTONDOWN, modifiers | 0x0002, self.position_long)
             case _:
                 raise ValueError('Invalid button')
 
-    def release(self, button=win32con.VK_LBUTTON):
+    def release(self, button=buttons.LEFT, modifiers=0x0000):
         match button:
-            case win32con.VK_LBUTTON:
-                self.window.post_message(win32con.WM_LBUTTONUP, 0, 0)
-            case win32con.VK_RBUTTON:
-                self.window.post_message(win32con.WM_RBUTTONUP, 0, 0)
-            case win32con.VK_MBUTTON:
-                self.window.post_message(win32con.WM_MBUTTONUP, 0, 0)
+            case buttons.LEFT:
+                self.window.post_message(WM_LBUTTONUP, modifiers, self.position_long)
+            case buttons.RIGHT:
+                self.window.post_message(WM_RBUTTONUP, modifiers, self.position_long)
+            case buttons.MIDDLE:
+                self.window.post_message(WM_MBUTTONUP, modifiers, self.position_long)
+            case buttons.X1:
+                # 0x0001 means the first X button
+                self.window.post_message(WM_XBUTTONUP, modifiers | 0x0001, self.position_long)
+            case buttons.X2:
+                # 0x0002 means the second X button
+                self.window.post_message(WM_XBUTTONUP, modifiers | 0x0002, self.position_long)
             case _:
-                raise ValueError('Invalid button')
+                raise ValueError('Invalid mouse button')
 
     def double_click(self):
         self.click()
