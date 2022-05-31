@@ -1,25 +1,35 @@
+import ctypes
+
 import win32api
 import win32con
 import win32gui
+import keyboard
 import mouse
 import time
 
 from typing import Tuple
 
-from .constants import *
+from pywinput.constants import *
 
 
 class Mouse:
     def __init__(self, window):
         self.window = window
 
+    @staticmethod
+    def as_long(position):
+        return win32api.MAKELONG(*position)
+
+    def from_client(self, position):
+        return position[0] - self.window.client_x, position[1] - self.window.client_y
+
     @property
     def position(self) -> Tuple[int, int]:
         return win32gui.GetCursorPos()
 
     @property
-    def position_long(self):
-        return win32api.MAKELONG(*self.position)
+    def position_long_from_client(self):
+        return self.as_long(self.from_client(self.position))
 
     def pressed(self, key=buttons.LEFT) -> bool:
         return win32api.GetKeyState(key) & 0x8000
@@ -59,8 +69,7 @@ class Mouse:
                     self.move(start_x + dx * i / steps, start_y + dy * i / steps)
                     time.sleep(duration / steps)
         else:
-            adjusted_x = x - win32gui.GetClientRect(self.window.hwnd)[0]
-            self.window.post_message(win32con.WM_MOUSEMOVE, 0, win32api.MAKELONG(x, y))
+            self.window.post_message(win32con.WM_MOUSEMOVE, 0, self.position_long_from_client)
 
     def scroll(self, delta=1):
         self.window.post_message(win32con.WM_MOUSEWHEEL, delta, 0)
@@ -68,40 +77,46 @@ class Mouse:
     def press(self, button=buttons.LEFT, modifiers=0x0000):
         match button:
             case buttons.LEFT:
-                self.window.post_message(WM_LBUTTONDOWN, modifiers, self.position_long)
+                self.window.post_message(WM_LBUTTONDOWN, modifiers, self.position_long_from_client)
             case buttons.RIGHT:
-                self.window.post_message(WM_RBUTTONDOWN, modifiers, self.position_long)
+                self.window.post_message(WM_RBUTTONDOWN, modifiers, self.position_long_from_client)
             case buttons.MIDDLE:
-                self.window.post_message(WM_MBUTTONDOWN, modifiers, self.position_long)
+                self.window.post_message(WM_MBUTTONDOWN, modifiers, self.position_long_from_client)
             case buttons.X1:
                 # 0x0001 means the first X button
-                self.window.post_message(WM_XBUTTONDOWN, modifiers | 0x0001, self.position_long)
+                self.window.post_message(WM_XBUTTONDOWN, modifiers | 0x0001, self.position_long_from_client)
             case buttons.X2:
                 # 0x0002 means the second X button
-                self.window.post_message(WM_XBUTTONDOWN, modifiers | 0x0002, self.position_long)
+                self.window.post_message(WM_XBUTTONDOWN, modifiers | 0x0002, self.position_long_from_client)
             case _:
                 raise ValueError('Invalid button')
 
     def release(self, button=buttons.LEFT, modifiers=0x0000):
         match button:
             case buttons.LEFT:
-                self.window.post_message(WM_LBUTTONUP, modifiers, self.position_long)
+                self.window.post_message(WM_LBUTTONUP, modifiers, self.position_long_from_client)
             case buttons.RIGHT:
-                self.window.post_message(WM_RBUTTONUP, modifiers, self.position_long)
+                self.window.post_message(WM_RBUTTONUP, modifiers, self.position_long_from_client)
             case buttons.MIDDLE:
-                self.window.post_message(WM_MBUTTONUP, modifiers, self.position_long)
+                self.window.post_message(WM_MBUTTONUP, modifiers, self.position_long_from_client)
             case buttons.X1:
                 # 0x0001 means the first X button
-                self.window.post_message(WM_XBUTTONUP, modifiers | 0x0001, self.position_long)
+                self.window.post_message(WM_XBUTTONUP, modifiers | 0x0001, self.position_long_from_client)
             case buttons.X2:
                 # 0x0002 means the second X button
-                self.window.post_message(WM_XBUTTONUP, modifiers | 0x0002, self.position_long)
+                self.window.post_message(WM_XBUTTONUP, modifiers | 0x0002, self.position_long_from_client)
             case _:
                 raise ValueError('Invalid mouse button')
 
     def double_click(self):
         self.click()
         self.click()
+
+
+if __name__ == '__main__':
+    keyboard.hook(set_flag)
+    while True:
+        pass
 
 
 

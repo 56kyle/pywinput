@@ -113,6 +113,60 @@ def test_y_setter(example_window):
     assert example_window.y == 300
     assert example_window.height == 400
 
+def test_client_rect_getter(example_window):
+    example_window.client_rect = (100, 200, 500, 600)
+    assert example_window.client_rect == (100, 200, 500, 600)
+
+def test_client_rect_setter(example_window):
+    example_window.client_rect = (200, 300, 500, 500)
+    assert example_window.client_rect == (200, 300, 500, 500)
+    example_window.client_rect = (100, 200, 500, 600)
+    assert example_window.client_rect == (100, 200, 500, 600)
+
+def test_client_width_getter(example_window):
+    example_window.client_rect = (100, 200, 500, 600)
+    assert example_window.client_width == 400
+
+def test_client_width_setter(example_window):
+    example_window.client_rect = (100, 200, 500, 600)
+    assert example_window.client_width == 400
+    example_window.client_width = 700
+    assert example_window.client_width == 700
+    assert example_window.client_x == 100
+
+def test_client_height_getter(example_window):
+    example_window.client_rect = (100, 200, 500, 600)
+    assert example_window.client_height == 400
+
+def test_client_height_setter(example_window):
+    example_window.client_rect = (100, 200, 500, 600)
+    assert example_window.client_height == 400
+    example_window.client_height = 700
+    assert example_window.client_height == 700
+    assert example_window.client_y == 200
+
+def test_client_x_getter(example_window):
+    example_window.client_rect = (100, 200, 500, 600)
+    assert example_window.client_x == 100
+
+def test_client_x_setter(example_window):
+    example_window.client_rect = (100, 200, 500, 600)
+    assert example_window.client_x == 100
+    example_window.client_x = 300
+    assert example_window.client_x == 300
+    assert example_window.client_width == 400
+
+def test_client_y_getter(example_window):
+    example_window.client_rect = (100, 200, 500, 600)
+    assert example_window.client_y == 200
+
+def test_client_y_setter(example_window):
+    example_window.client_rect = (100, 200, 500, 600)
+    assert example_window.client_y == 200
+    example_window.client_y = 300
+    assert example_window.client_y == 300
+    assert example_window.client_height == 400
+
 def test_visible_getter(example_window):
     example_window.visible = True
     assert example_window.visible

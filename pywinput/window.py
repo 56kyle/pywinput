@@ -1,23 +1,24 @@
 
+import keyboard
+import mouse
 
 import win32api
 import win32con
 import win32gui
 
-from typing import SupportsInt
 
-from pywinput.keyboard import Keyboard
+from typing import SupportsInt, Iterable
+
+from pywintypes import *
+from pywinput.constants import *
 from pywinput.logger import log
-from pywinput.mouse import Mouse
 from pywinput.structures import *
 from pywinput.window_class import WindowClass
 
 
 class Window:
-    def __init__(self, hwnd):
+    def __init__(self, hwnd: HWND):
         self.hwnd = hwnd
-        self.keyboard = Keyboard(self)
-        self.mouse = Mouse(self)
 
     def __str__(self):
         return self.text
@@ -77,6 +78,14 @@ class Window:
     def text(self, text):
         win32gui.SetWindowText(self.hwnd, text)
 
+    @staticmethod
+    def _rect_to_points(self, rect: RECT):
+        return POINT(rect[0], RECT[1]), POINT(rect[2], RECT[3])
+
+    @staticmethod
+    def _points_to_rect(self, top_left: POINT, bottom_right: POINT):
+        return RECT(top_left.x, top_left.y, bottom_right.x, bottom_right.y)
+
     @property
     def rect(self) -> RECT:
         return win32gui.GetWindowRect(self.hwnd)
@@ -107,7 +116,7 @@ class Window:
 
     @x.setter
     def x(self, x: SupportsInt):
-        self.rect = (x, self.rect[1], self.width + x, self.rect[3])
+        self.rect = (x, self.rect[1], self.width + int(x), self.rect[3])
 
     @property
     def y(self) -> int:
@@ -115,11 +124,11 @@ class Window:
 
     @y.setter
     def y(self, y: SupportsInt):
-        self.rect = (self.rect[0], y, self.rect[2], self.height + y)
+        self.rect = (self.rect[0], y, self.rect[2], self.height + int(y))
 
     @property
     def client_rect(self) -> RECT:
-        return win32gui.GetWindowRect(self.hwnd)
+        return win32gui.GetClientRect(self.hwnd)
 
     @client_rect.setter
     def client_rect(self, rect: RECT):
@@ -131,7 +140,7 @@ class Window:
 
     @client_width.setter
     def client_width(self, width: SupportsInt):
-        self.client_rect = (self.client_rect[0], self.client_rect[1], self.client_rect[0] + width, self.client_rect[3])
+        self.client_rect = (self.client_rect[0], self.client_rect[1], self.client_rect[0] + int(width), self.client_rect[3])
 
     @property
     def client_height(self) -> int:
@@ -139,7 +148,7 @@ class Window:
 
     @client_height.setter
     def client_height(self, height: SupportsInt):
-        self.client_rect = (self.client_rect[0], self.client_rect[1], self.client_rect[2], self.client_rect[1] + height)
+        self.client_rect = (self.client_rect[0], self.client_rect[1], self.client_rect[2], self.client_rect[1] + int(height))
 
     @property
     def client_x(self) -> int:
@@ -220,6 +229,67 @@ class Window:
 
     def flash(self, bInvert: SupportsInt = 0):
         win32gui.FlashWindow(self.hwnd, 1 if bInvert else 0)
+
+    def send(self, scan_code: int | str, do_press: bool = True, do_release: bool = True, modifiers: int = None, position: POINT = None):
+        parsed = keyboard.parse_hotkey(scan_code)
+        for step in parsed:
+            if do_press:
+                for scan_codes in step:
+                    self._simulate(scan_codes[0], do_press, False, modifiers, position)
+            if do_release:
+                for scan_codes in reversed(step):
+                    self._simulate(scan_codes[0], False, do_release, modifiers, position)
+
+    def _simulate(self,
+                  scan_code: int,
+                  do_press: bool = True,
+                  do_release: bool = True,
+                  modifiers: int = None,
+                  position: POINT = None):
+        down_message = None
+        up_message = None
+        if Button.has_value(scan_code):
+            # Mouse button
+            modifiers = modifiers if modifiers is not None else self._get_mouse_modifiers()
+            position = position if position is not None else self._get_mouse_client_position()
+            down_message = button_down_msg[scan_code]
+            up_message = button_up_msg[scan_code]
+            if do_press:
+                self.post_message(down_message, modifiers, win32api.MAKELONG(position[0], position[1]))
+            if do_release:
+                self.post_message(up_message, modifiers, win32api.MAKELONG(position[0], position[1]))
+        elif Key.has_value(scan_code):
+            # Keyboard button
+            modifiers = modifiers if modifiers is not None else 0
+            if do_press:
+                self.post_message(win32con.WM_KEYDOWN, scan_code, modifiers)
+            if do_release:
+                self.post_message(win32con.WM_KEYUP, scan_code, modifiers)
+        else:
+            raise ValueError('Invalid scan code')
+
+    def _get_mouse_modifiers(self):
+        keyboard_state = win32api.GetKeyboardState()
+        modifier_list = [
+            keyboard_state[win32con.VK_CONTROL],
+            keyboard_state[Button.LEFT],
+            keyboard_state[Button.MIDDLE],
+            keyboard_state[Button.RIGHT],
+            keyboard_state[Key.VK_SHIFT],
+            keyboard_state[Button.X1],
+            keyboard_state[Button.X2],
+        ]
+        return sum(1 << i for i, v in enumerate(modifier_list) if v)
+
+    def _get_mouse_screen_position(self):
+        return win32api.GetCursorPos()
+
+    def _get_mouse_client_position(self):
+        return win32gui.ScreenToClient(self.hwnd, self._get_mouse_screen_position())
+
+
+
+
 
 
 

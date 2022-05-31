@@ -138,6 +138,3 @@ class WNDCLASSW(Structure):
         ('lpszClassName', LPCWSTR),
     ]
 
-
-
-
