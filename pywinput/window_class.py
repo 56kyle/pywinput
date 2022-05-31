@@ -40,7 +40,6 @@ class WindowClass:
                 }
             case _:
                 raise TypeError(f'lpfnWndProc must be a WNDPROC, dict, or None, not {type(lpfnWndProc)}')
-
         self.register()
 
     def __del__(self):
@@ -76,6 +75,8 @@ class WindowClass:
             wc.lpfnWndProc = self.lpfnWndProc
             win32gui.RegisterClass(wc)
         except Exception as e:
+            # If the class is already registered, then we can just ignore the error
+            # Since the exception type is compiled, we just have to check for the error code
             if e.args[0] != 1410:
                 raise e
 

@@ -1,6 +1,5 @@
 
 import keyboard
-import mouse
 
 import win32api
 import win32con
@@ -17,8 +16,8 @@ from pywinput.window_class import WindowClass
 
 
 class Window:
-    def __init__(self, hwnd: HWND):
-        self.hwnd = hwnd
+    def __init__(self, hwnd: HWND = None):
+        self.hwnd = hwnd if hwnd is not None else win32gui.GetForegroundWindow()
 
     def __str__(self):
         return self.text
@@ -37,8 +36,8 @@ class Window:
 
     @classmethod
     def create(cls,
-               windowClass: int | str | WindowClass = None,
-               windowTitle: str = '',
+               klass: int | str | WindowClass = None,
+               title: str = '',
                style: int = win32con.WS_CAPTION | win32con.WS_SYSMENU | win32con.WS_THICKFRAME | win32con.WS_MINIMIZEBOX | win32con.WS_MAXIMIZEBOX,
                x: int = win32con.CW_USEDEFAULT,
                y: int = win32con.CW_USEDEFAULT,
@@ -46,19 +45,19 @@ class Window:
                height: int = win32con.CW_USEDEFAULT,
                parent: int = None,
                menu: int = None,
-               hInstance: int = win32api.GetModuleHandle(None),
+               h_instance: int = win32api.GetModuleHandle(None),
                reserved: None = None,
                ):
-        if windowClass is None:
-            windowClass = WindowClass(
+        if klass is None:
+            klass = WindowClass(
                 style=win32con.CS_HREDRAW | win32con.CS_VREDRAW,
                 cbWndExtra=win32con.DLGWINDOWEXTRA,
                 lpszClassName='MyWndClass',
-                hInstance=hInstance,
+                hInstance=h_instance,
             )
-        className = windowClass.lpszClassName if isinstance(windowClass, WindowClass) else windowClass
+        class_name = klass.lpszClassName if isinstance(klass, WindowClass) else klass
         hwnd = win32gui.CreateWindow(
-            className, windowTitle, style, x, y, width, height, parent, menu, hInstance, reserved
+            class_name, title, style, x, y, width, height, parent, menu, h_instance, reserved
         )
         win32gui.UpdateWindow(hwnd)
         return cls(hwnd)
@@ -79,12 +78,12 @@ class Window:
         win32gui.SetWindowText(self.hwnd, text)
 
     @staticmethod
-    def _rect_to_points(self, rect: RECT):
+    def _rect_to_points(rect: RECT):
         return POINT(rect[0], RECT[1]), POINT(rect[2], RECT[3])
 
     @staticmethod
-    def _points_to_rect(self, top_left: POINT, bottom_right: POINT):
-        return RECT(top_left.x, top_left.y, bottom_right.x, bottom_right.y)
+    def _points_to_rect(top_left, bottom_right):
+        return top_left[0], top_left[1], bottom_right[0], bottom_right[1]
 
     @property
     def rect(self) -> RECT:
@@ -92,7 +91,10 @@ class Window:
 
     @rect.setter
     def rect(self, rect: RECT):
-        win32gui.MoveWindow(self.hwnd, rect[0], rect[1], rect[2] - rect[0], rect[3] - rect[1], True)
+        tl = win32gui.ScreenToClient(self.hwnd, (rect[0], rect[1]))
+        br = win32gui.ScreenToClient(self.hwnd, (rect[2], rect[3]))
+        c_rect = self._points_to_rect(tl, br)
+        win32gui.MoveWindow(self.hwnd, c_rect[0], c_rect[1], c_rect[2] - c_rect[0], c_rect[3] - c_rect[1], True)
 
     @property
     def width(self) -> int:
@@ -100,7 +102,7 @@ class Window:
 
     @width.setter
     def width(self, width: SupportsInt):
-        self.rect = (self.rect[0], self.rect[1], self.rect[0] + width, self.rect[3])
+        self.rect = (self.rect[0], self.rect[1], self.rect[0] + int(width), self.rect[3])
 
     @property
     def height(self) -> int:
@@ -108,7 +110,7 @@ class Window:
 
     @height.setter
     def height(self, height: SupportsInt):
-        self.rect = (self.rect[0], self.rect[1], self.rect[2], self.rect[1] + height)
+        self.rect = (self.rect[0], self.rect[1], self.rect[2], self.rect[1] + int(height))
 
     @property
     def x(self) -> int:
@@ -179,6 +181,39 @@ class Window:
 
     def hide(self):
         win32gui.ShowWindow(self.hwnd, win32con.SW_HIDE)
+
+    @property
+    def maximized(self) -> bool:
+        return win32gui.GetWindowPlacement(self.hwnd)[1] == win32con.SW_MAXIMIZE
+
+    @maximized.setter
+    def maximized(self, maximized: bool):
+        self.maximize() if maximized else self.restore()
+
+    def maximize(self):
+        win32gui.ShowWindow(self.hwnd, win32con.SW_MAXIMIZE)
+
+    @property
+    def minimized(self) -> bool:
+        return win32gui.GetWindowPlacement(self.hwnd)[1] == win32con.SW_MINIMIZE
+
+    @minimized.setter
+    def minimized(self, minimized: bool):
+        self.minimize() if minimized else self.restore()
+
+    def minimize(self):
+        win32gui.ShowWindow(self.hwnd, win32con.SW_MINIMIZE)
+
+    @property
+    def restored(self) -> bool:
+        return win32gui.GetWindowPlacement(self.hwnd)[1] == win32con.SW_SHOWNORMAL
+
+    @restored.setter
+    def restored(self, restored: bool):
+        self.restore() if restored else self.minimize()
+
+    def restore(self):
+        win32gui.ShowWindow(self.hwnd, win32con.SW_RESTORE)
 
     @property
     def enabled(self) -> bool:
@@ -288,8 +323,10 @@ class Window:
         return win32gui.ScreenToClient(self.hwnd, self._get_mouse_screen_position())
 
 
-
-
-
-
-
+if __name__ == '__main__':
+    win = Window()
+    win.x = 0
+    win.y = 0
+    win.width = 40
+    win.height = 40
+    win.update()

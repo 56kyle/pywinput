@@ -20,16 +20,16 @@ def example_window_class() -> WindowClass:
 @pytest.fixture(scope="session")
 def example_window(example_window_class) -> Window:
     return Window.create(
-        windowClass=example_window_class,
-        windowTitle='Example Window',
+        klass=example_window_class,
+        title='Example Window',
     )
 
 
 @pytest.fixture(scope="session")
 def other_window(example_window_class) -> Window:
     return Window.create(
-        windowClass=example_window_class,
-        windowTitle='Other Window',
+        klass=example_window_class,
+        title='Other Window',
     )
 
 

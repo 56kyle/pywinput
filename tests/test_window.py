@@ -28,8 +28,8 @@ def test_window_eq(example_window):
 def test_window_create(example_window_class):
     """Tests the 'Window.get_title' method."""
     win = Window.create(
-        windowClass=None,
-        windowTitle='foo',
+        klass=None,
+        title='foo',
         style=win32con.WS_OVERLAPPEDWINDOW,
         x=100,
         y=200,
@@ -188,6 +188,54 @@ def test_hide(example_window):
     assert example_window.visible
     example_window.hide()
     assert not example_window.visible
+
+def test_maximized_getter(example_window):
+    example_window.maximized = True
+    assert example_window.maximized
+
+def test_maximized_setter(example_window):
+    example_window.maximized = True
+    assert example_window.maximized
+    example_window.maximized = False
+    assert not example_window.maximized
+
+def test_maximize(example_window):
+    example_window.maximized = False
+    assert not example_window.maximized
+    example_window.maximize()
+    assert example_window.maximized
+
+def test_minimized_getter(example_window):
+    example_window.minimized = True
+    assert example_window.minimized
+
+def test_minimized_setter(example_window):
+    example_window.minimized = True
+    assert example_window.minimized
+    example_window.minimized = False
+    assert not example_window.minimized
+
+def test_minimize(example_window):
+    example_window.visible = True
+    assert example_window.visible
+    example_window.minimize()
+    assert not example_window.visible
+
+def test_restored_getter(example_window):
+    example_window.restored = True
+    assert example_window.restored
+
+def test_restored_setter(example_window):
+    example_window.restored = True
+    assert example_window.restored
+    example_window.restored = False
+    assert not example_window.restored
+
+def test_restore(example_window):
+    example_window.restored = True
+    assert example_window.restored
+    example_window.restore()
+    assert not example_window.restored
 
 def test_enabled_getter(example_window):
     example_window.enabled = False
