@@ -4,7 +4,6 @@ import win32api
 import win32con
 import win32gui
 import keyboard
-import mouse
 import time
 
 from typing import Tuple
@@ -31,10 +30,10 @@ class Mouse:
     def position_long_from_client(self):
         return self.as_long(self.from_client(self.position))
 
-    def pressed(self, key=buttons.LEFT) -> bool:
+    def pressed(self, key=Button.LEFT) -> bool:
         return win32api.GetKeyState(key) & 0x8000
 
-    def click(self, button=buttons.LEFT):
+    def click(self, button=Button.LEFT):
         self.press(button)
         self.release(button)
 
@@ -74,37 +73,37 @@ class Mouse:
     def scroll(self, delta=1):
         self.window.post_message(win32con.WM_MOUSEWHEEL, delta, 0)
 
-    def press(self, button=buttons.LEFT, modifiers=0x0000):
+    def press(self, button=Button.LEFT, modifiers=0x0000):
         match button:
-            case buttons.LEFT:
-                self.window.post_message(WM_LBUTTONDOWN, modifiers, self.position_long_from_client)
-            case buttons.RIGHT:
-                self.window.post_message(WM_RBUTTONDOWN, modifiers, self.position_long_from_client)
-            case buttons.MIDDLE:
-                self.window.post_message(WM_MBUTTONDOWN, modifiers, self.position_long_from_client)
-            case buttons.X1:
+            case Button.LEFT:
+                self.window.post_message(Message.WM_LBUTTONDOWN, modifiers, self.position_long_from_client)
+            case Button.RIGHT:
+                self.window.post_message(Message.WM_RBUTTONDOWN, modifiers, self.position_long_from_client)
+            case Button.MIDDLE:
+                self.window.post_message(Message.WM_MBUTTONDOWN, modifiers, self.position_long_from_client)
+            case Button.X1:
                 # 0x0001 means the first X button
-                self.window.post_message(WM_XBUTTONDOWN, modifiers | 0x0001, self.position_long_from_client)
-            case buttons.X2:
+                self.window.post_message(Message.WM_XBUTTONDOWN, modifiers | 0x0001, self.position_long_from_client)
+            case Button.X2:
                 # 0x0002 means the second X button
-                self.window.post_message(WM_XBUTTONDOWN, modifiers | 0x0002, self.position_long_from_client)
+                self.window.post_message(Message.WM_XBUTTONDOWN, modifiers | 0x0002, self.position_long_from_client)
             case _:
                 raise ValueError('Invalid button')
 
-    def release(self, button=buttons.LEFT, modifiers=0x0000):
+    def release(self, button=Button.LEFT, modifiers=0x0000):
         match button:
-            case buttons.LEFT:
-                self.window.post_message(WM_LBUTTONUP, modifiers, self.position_long_from_client)
-            case buttons.RIGHT:
-                self.window.post_message(WM_RBUTTONUP, modifiers, self.position_long_from_client)
-            case buttons.MIDDLE:
-                self.window.post_message(WM_MBUTTONUP, modifiers, self.position_long_from_client)
-            case buttons.X1:
+            case Button.LEFT:
+                self.window.post_message(Message.WM_LBUTTONUP, modifiers, self.position_long_from_client)
+            case Button.RIGHT:
+                self.window.post_message(Message.WM_RBUTTONUP, modifiers, self.position_long_from_client)
+            case Button.MIDDLE:
+                self.window.post_message(Message.WM_MBUTTONUP, modifiers, self.position_long_from_client)
+            case Button.X1:
                 # 0x0001 means the first X button
-                self.window.post_message(WM_XBUTTONUP, modifiers | 0x0001, self.position_long_from_client)
-            case buttons.X2:
+                self.window.post_message(Message.WM_XBUTTONUP, modifiers | 0x0001, self.position_long_from_client)
+            case Button.X2:
                 # 0x0002 means the second X button
-                self.window.post_message(WM_XBUTTONUP, modifiers | 0x0002, self.position_long_from_client)
+                self.window.post_message(Message.WM_XBUTTONUP, modifiers | 0x0002, self.position_long_from_client)
             case _:
                 raise ValueError('Invalid mouse button')
 
@@ -114,7 +113,6 @@ class Mouse:
 
 
 if __name__ == '__main__':
-    keyboard.hook(set_flag)
     while True:
         pass
 
